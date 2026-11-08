@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Meu Treino</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#e9ecf0;--sf:#fff;--ink:#1b2a41;--mut:#6b778a;--ac:#2f5bff;--acx:#fff;--ok:#12a150;--ln:#d5dae2;--dg:#d63b3b;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#121a28;--sf:#1c2638;--ink:#eef2f8;--mut:#93a0b5;--ac:#6f8cff;--acx:#0d1424;--ok:#3ccf7d;--ln:#2d3a52;--dg:#ff6b6b}}
+:root[data-theme="dark"]{--bg:#121a28;--sf:#1c2638;--ink:#eef2f8;--mut:#93a0b5;--ac:#6f8cff;--acx:#0d1424;--ok:#3ccf7d;--ln:#2d3a52;--dg:#ff6b6b}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,"Segoe UI",Roboto,sans-serif}
+body{min-height:100%;padding-bottom:110px}
+main{max-width:520px;margin:0 auto;padding:16px}
+h1,h2,.num{font-family:"Barlow Condensed","Arial Narrow",sans-serif;font-weight:700;letter-spacing:.2px}
+h1{font-size:34px;margin:8px 0 16px}
+h2{font-size:24px;margin:0}
+button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}
+.btn{background:var(--ac);color:var(--acx);border-radius:12px;padding:14px 18px;font-weight:600;width:100%}
+.btn.sec{background:var(--sf);color:var(--ink);border:1px solid var(--ln)}
+.btn.ok{background:var(--ok);color:#fff}
+.card{background:var(--sf);border-radius:16px;padding:16px;margin-bottom:12px;border:1px solid var(--ln)}
+.row{display:flex;align-items:center;gap:10px}
+.sp{flex:1}
+.mut{color:var(--mut);font-size:14px}
+.item{display:flex;align-items:center;justify-content:space-between;width:100%;text-align:left}
+.item .t{font-size:20px}
+input{font:inherit;color:inherit;background:var(--bg);border:1px solid var(--ln);border-radius:10px;padding:12px;width:100%}
+.dots{display:flex;gap:6px;margin:10px 0 14px}
+.dot{height:8px;flex:1;border-radius:4px;background:var(--ln)}
+.dot.on{background:var(--ok)}
+.ico{width:40px;height:40px;border-radius:10px;font-size:18px;color:var(--mut)}
+.back{color:var(--ac);font-weight:600;padding:8px 0}
+.sets{margin-top:10px}
+.set{display:flex;align-items:center;gap:6px;padding:8px 0;border-top:1px solid var(--ln)}
+.set .sn{width:56px;font-weight:600}
+.set .ico{width:32px;height:32px;flex:none}
+.set .kg{width:64px;text-align:center;padding:10px 6px;font-weight:600}
+.set .chk{margin-left:auto;min-width:84px;padding:11px 8px;border-radius:10px;background:var(--ac);color:var(--acx);font-weight:600}
+.set.fin .chk{background:var(--ok);color:#fff}
+.set.fin .sn{color:var(--ok)}
+.set .chk:disabled{opacity:.35;cursor:not-allowed}
+#sh{position:fixed;inset:0;z-index:10;display:none}
+#sh.show{display:block}
+#sh .bd{position:absolute;inset:0;background:rgba(0,0,0,.45)}
+#sh .pn{position:absolute;left:0;right:0;bottom:0;max-width:520px;margin:0 auto;max-height:82%;overflow:auto;background:var(--sf);border-radius:20px 20px 0 0;padding:18px 16px calc(18px + env(safe-area-inset-bottom,0px));animation:up .2s ease-out}
+@keyframes up{from{transform:translateY(40px);opacity:0}}
+.wk{padding:10px 0;border-top:1px solid var(--ln)}
+.bar{height:6px;border-radius:3px;background:var(--ln);margin-top:6px}
+.bar i{display:block;height:100%;border-radius:3px;background:var(--ac)}
+.up{color:var(--ok)}.dn{color:var(--dg)}
+.stp{width:40px;height:40px;border-radius:10px;border:1px solid var(--ln);font-size:20px}
+.add{margin-bottom:8px}
+#timer{position:fixed;left:0;right:0;bottom:0;background:var(--ink);color:var(--bg);padding:12px 16px calc(12px + env(safe-area-inset-bottom,0px));display:none;z-index:5}
+#timer.show{display:block}
+#timer .in{max-width:520px;margin:0 auto;display:flex;align-items:center;gap:12px}
+#timer .num{font-size:44px;line-height:1;min-width:110px}
+#timer.end{background:var(--ok);color:#fff}
+#timer button{border:1px solid currentColor;border-radius:10px;padding:10px 12px;opacity:.9}
+</style>
+</head>
+<body>
+<main id="app"></main>
+<div id="sy" class="mut" style="text-align:center;font-size:13px;padding-bottom:8px"></div>
+<div id="sh"></div>
+<div id="timer"><div class="in"><div class="num" id="tm">0:00</div><div class="mut sp" id="tl" style="color:inherit;opacity:.8">Descanso</div><button id="tadd">+15s</button><button id="tskip">Pular</button></div></div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script>
+var SB_URL="COLE_AQUI_A_PROJECT_URL",SB_KEY="COLE_AQUI_A_PUBLISHABLE_KEY";
+var KEY="treino-app-v1",S={workouts:[],rest:60},view=null,tInt=null,tLeft=0;
+try{var r=localStorage.getItem(KEY);if(r)S=JSON.parse(r)}catch(e){}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}push()}
+function uid(){return Math.random().toString(36).slice(2,9)}
+function fix(e){if(!e.log){e.log=[];for(var i=0;i<(e.sets||0);i++)e.log.push({kg:"",done:false})}e.sets=e.log.length;e.done=e.log.filter(function(x){return x.done}).length}
+S.workouts.forEach(function(w){w.exercises.forEach(function(e){fix(e);if(e.done)rec(e)})});
+function p2(n){return String(n).padStart(2,"0")}
+function ymd(d){return d.getFullYear()+"-"+p2(d.getMonth()+1)+"-"+p2(d.getDate())}
+function kgv(x){var n=parseFloat(String(x.kg).replace(",","."));return isNaN(n)?0:n}
+function rec(e){e.hist=e.hist||{};var v=e.log.filter(function(s){return s.done}).map(kgv).filter(function(n){return n>0}),k=ymd(new Date());if(v.length)e.hist[k]=Math.max.apply(null,v);else delete e.hist[k]}
+function wkStart(ds){var p=ds.split("-"),d=new Date(+p[0],p[1]-1,+p[2]);d.setDate(d.getDate()-(d.getDay()+6)%7);return d}
+function fk(v){return String(v).replace(".",",")}
+function pc(p){return(p>0?"+":"")+p.toFixed(1).replace(".",",")+"%"}
+function fmtD(ms){var s=Math.max(0,Math.floor(ms/1000)),h=Math.floor(s/3600),m=Math.floor(s%3600/60);return(h?h+":"+p2(m):m)+":"+p2(s%60)}
+function dur(ms){var m=Math.round(ms/60000),h=Math.floor(m/60);m=m%60;if(!h)return m<1?"menos de 1 minuto":m+(m===1?" minuto":" minutos");return h+(h===1?" hora":" horas")+(m?" e "+m+(m===1?" minuto":" minutos"):"")}
+function dm(t){var d=new Date(t);return p2(d.getDate())+"/"+p2(d.getMonth()+1)}
+function ask(t,m,ok,cb,inp){
+  var sh=document.getElementById("sh");
+  sh.innerHTML='<div class="bd" id="shb"></div><div class="pn"><h2>'+esc(t)+'</h2>'+(m?'<p class="mut" style="margin:8px 0 14px">'+esc(m)+'</p>':'')+(inp!==undefined?'<input id="ski" value="'+esc(inp)+'" style="margin:10px 0 14px">':'')+'<div class="row"><button class="btn sec" id="shn" style="flex:1">Cancelar</button><button class="btn" id="sho" style="flex:1">'+esc(ok)+'</button></div></div>';
+  sh.className="show";
+  function cl(){sh.className=""}
+  document.getElementById("shb").onclick=cl;document.getElementById("shn").onclick=cl;
+  document.getElementById("sho").onclick=function(){var v=inp!==undefined?document.getElementById("ski").value:"";cl();cb(v)};
+}
+function showMsg(t,m,s){
+  var sh=document.getElementById("sh");
+  sh.innerHTML='<div class="bd" id="shb"></div><div class="pn"><h2>'+t+'</h2><p style="font-size:22px;margin:10px 0 4px">'+m+'</p><p class="mut" style="margin:0 0 16px">'+s+'</p><button class="btn" id="shx">Fechar</button></div>';sh.className="show";
+  function cl(){sh.className=""}
+  document.getElementById("shb").onclick=cl;document.getElementById("shx").onclick=cl;
+}
+function showHist(e){
+  var wk={};Object.keys(e.hist||{}).forEach(function(k){var w=ymd(wkStart(k));wk[w]=Math.max(wk[w]||0,e.hist[k])});
+  var keys=Object.keys(wk).sort(),rows=[],mx=0;
+  keys.forEach(function(k,i){var v=wk[k],pr=i?wk[keys[i-1]]:null;rows.push({k:k,v:v,p:pr?(v-pr)/pr*100:null});mx=Math.max(mx,v)});
+  var cur=ymd(wkStart(ymd(new Date()))),h='<div class="row"><h2 class="sp">'+esc(e.name)+'</h2><button class="ico" id="shx">✕</button></div>';
+  if(!rows.length)h+='<p class="mut">Ainda sem registros. Preencha a carga e conclua as séries: o histórico aparece aqui.</p>';
+  else{
+    var cr=rows.filter(function(r){return r.k===cur})[0];
+    h+='<div style="margin:14px 0"><div class="mut">Esta semana</div>';
+    if(!cr)h+='<div class="mut">Sem registro nesta semana.</div>';
+    else if(cr.p===null)h+='<div class="num" style="font-size:36px">'+fk(cr.v)+' kg</div><div class="mut">Primeira semana registrada</div>';
+    else h+='<div class="num '+(cr.p>=0?'up':'dn')+'" style="font-size:36px">'+pc(cr.p)+'</div><div class="mut">de evolução na carga máxima ('+fk(cr.v)+' kg)</div>';
+    h+='</div><div class="mut" style="margin-bottom:4px">Semana a semana (carga máxima)</div>';
+    rows.slice().reverse().forEach(function(r){
+      var d=new Date(r.k.split("-")[0],r.k.split("-")[1]-1,r.k.split("-")[2]);
+      h+='<div class="wk"><div class="row"><span class="sp">Semana de '+p2(d.getDate())+'/'+p2(d.getMonth()+1)+'</span><b>'+fk(r.v)+' kg</b><b class="'+(r.p===null?'mut':r.p>=0?'up':'dn')+'" style="min-width:64px;text-align:right">'+(r.p===null?'—':pc(r.p))+'</b></div><div class="bar"><i style="width:'+Math.round(r.v/mx*100)+'%"></i></div></div>';
+    });
+  }
+  var sh=document.getElementById("sh");
+  sh.innerHTML='<div class="bd" id="shb"></div><div class="pn">'+h+'</div>';sh.className="show";
+  function cl(){sh.className=""}
+  document.getElementById("shb").onclick=cl;document.getElementById("shx").onclick=cl;
+}
+function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
+function W(id){return S.workouts.find(function(w){return w.id===id})}
+
+function render(){
+  var a=document.getElementById("app");
+  if(!view){
+    var h='<h1>Meus treinos</h1>';
+    if(!S.workouts.length)h+='<p class="mut">Nenhum treino ainda. Crie o primeiro abaixo, por exemplo "Treino A - Peito".</p>';
+    S.workouts.forEach(function(w){
+      var tot=0,dn=0;w.exercises.forEach(function(e){tot+=e.sets;dn+=e.done});
+      h+='<div class="card"><button class="item" data-open="'+w.id+'"><div><div class="num t">'+esc(w.name)+'</div><div class="mut">'+w.exercises.length+' exercícios · '+dn+'/'+tot+' séries'+(w.startedAt?' · em andamento':'')+'</div></div><span class="mut">›</span></button></div>';
+    });
+    h+='<div class="card"><div class="mut" style="margin-bottom:8px">Novo treino</div><div class="row"><input id="nw" placeholder="Nome do treino"><button class="btn" id="addw" style="width:auto">Criar</button></div></div>';
+    h+='<div class="card"><div class="row"><div class="sp"><b>Descanso entre séries</b><div class="mut">Tempo do cronômetro</div></div><button class="stp" id="rm">−</button><b class="num" style="font-size:24px;min-width:48px;text-align:center">'+S.rest+'s</b><button class="stp" id="rp">+</button></div></div>';
+    h+='<button class="btn sec" id="lo">Sair da conta</button>';
+    a.innerHTML=h;
+    on("addw",function(){var v=val("nw");if(!v)return;S.workouts.push({id:uid(),name:v,exercises:[]});save();render()});
+    on("lo",function(){try{localStorage.removeItem(KEY)}catch(e){}sb.auth.signOut().then(function(){location.reload()})});
+    on("rm",function(){S.rest=Math.max(10,S.rest-15);save();render()});
+    on("rp",function(){S.rest=Math.min(600,S.rest+15);save();render()});
+    a.querySelectorAll("[data-open]").forEach(function(b){b.onclick=function(){view=b.dataset.open;render()}});
+    return;
+  }
+  var w=W(view);if(!w){view=null;return render()}
+  var h='<button class="back" id="bk">‹ Treinos</button><div class="row" style="margin:4px 0 14px"><h1 style="margin:0" class="sp">'+esc(w.name)+'</h1><button class="ico" id="rn" title="Renomear">✎</button><button class="ico" id="dw" title="Excluir treino">🗑</button></div>';
+  var ss=w.sessions||[],ls=ss[ss.length-1];
+  h+='<div class="card">'+(w.startedAt?'<div class="mut">Treino em andamento</div><div class="num" id="wc" style="font-size:52px;line-height:1.1">'+fmtD(Date.now()-w.startedAt)+'</div><button class="btn ok" id="fin" style="margin-top:10px">Finalizar treino</button>':'<button class="btn" id="ini">Iniciar treino</button><div class="mut" style="margin-top:10px">Inicie o treino para concluir as séries.'+(ls?' Último treino: '+dur(ls.ms)+' em '+dm(ls.end)+'.':'')+'</div>')+'</div>';
+  if(!w.exercises.length)h+='<p class="mut">Adicione exercícios com o número de séries.</p>';
+  w.exercises.forEach(function(e){
+    var d='';
+    e.log.forEach(function(s,i){
+      var k=e.id+':'+i;
+      d+='<div class="set'+(s.done?' fin':'')+'"><span class="sn">Série '+(i+1)+'</span><input class="kg" inputmode="decimal" data-kg="'+k+'" value="'+esc(s.kg)+'" placeholder="0" aria-label="Carga em kg"><span class="mut">kg</span><button class="chk" data-tg="'+k+'"'+(w.startedAt?'':' disabled')+'>'+(s.done?'Feita ✓':'Concluir')+'</button><button class="ico" data-rs="'+k+'" title="Remover série">✕</button></div>';
+    });
+    h+='<div class="card"><div class="row"><div class="sp"><h2>'+esc(e.name)+'</h2><div class="mut">'+e.done+' de '+e.sets+' séries</div></div><button class="ico" data-del="'+e.id+'" title="Remover">✕</button></div><div class="sets">'+d+'</div><div class="row" style="margin-top:10px"><button class="btn sec" data-as="'+e.id+'" style="flex:1">+ Série</button><button class="btn sec" data-hi="'+e.id+'" style="flex:1">Histórico</button></div></div>';
+  });
+  h+='<div class="card"><div class="mut" style="margin-bottom:8px">Novo exercício</div><div class="add"><input id="ne" placeholder="Ex: Supino reto"></div><button class="btn sec" id="ae">Adicionar exercício</button></div>';
+  if(w.exercises.length)h+='<button class="btn sec" id="rs">Reiniciar treino</button>';
+  a.innerHTML=h;
+  on("bk",function(){view=null;stopT();render()});
+  on("ini",function(){w.exercises.forEach(function(e){e.log.forEach(function(x){x.done=false});fix(e)});w.startedAt=Date.now();save();render()});
+  on("fin",function(){ask("Finalizar treino?","O relógio será parado e a duração será salva.","Finalizar",function(){var end=Date.now(),ms=end-w.startedAt,dn=0;w.sessions=w.sessions||[];w.sessions.push({start:w.startedAt,end:end,ms:ms});w.exercises.forEach(function(e){dn+=e.done});w.startedAt=null;save();stopT();render();showMsg("Treino finalizado","O treino durou "+dur(ms)+".",dn+(dn===1?" série concluída":" séries concluídas"))})});
+  on("rn",function(){ask("Renomear treino","","Salvar",function(v){v=v.trim();if(v){w.name=v;save();render()}},w.name)});
+  on("dw",function(){ask("Excluir treino?","Os exercícios deste treino serão apagados.","Excluir",function(){S.workouts=S.workouts.filter(function(x){return x.id!==w.id});save();view=null;stopT();render()})});
+  on("ae",function(){var n=val("ne");if(!n)return;var x={id:uid(),name:n,log:[{kg:"",done:false}]};fix(x);w.exercises.push(x);save();render()});
+  on("rs",function(){w.exercises.forEach(function(e){e.log.forEach(function(x){x.done=false});fix(e)});save();stopT();render()});
+  function ex(id){return w.exercises.find(function(e){return e.id===id})}
+  a.querySelectorAll("[data-tg]").forEach(function(b){b.onclick=function(){var p=b.dataset.tg.split(":"),e=ex(p[0]),s=e.log[+p[1]];s.done=!s.done;fix(e);rec(e);save();render();if(s.done&&e.done<e.sets)startT(S.rest,e.name);else stopT()}});
+  a.querySelectorAll("[data-hi]").forEach(function(b){b.onclick=function(){showHist(ex(b.dataset.hi))}});
+  a.querySelectorAll("[data-as]").forEach(function(b){b.onclick=function(){var e=ex(b.dataset.as),l=e.log[e.log.length-1];e.log.push({kg:l?l.kg:"",done:false});fix(e);save();render()}});
+  a.querySelectorAll("[data-rs]").forEach(function(b){b.onclick=function(){var p=b.dataset.rs.split(":"),e=ex(p[0]);e.log.splice(+p[1],1);fix(e);if(e.done)rec(e);save();render()}});
+  a.querySelectorAll("[data-kg]").forEach(function(i){i.oninput=function(){var p=i.dataset.kg.split(":"),e=ex(p[0]),s=e.log[+p[1]];s.kg=i.value;if(s.done)rec(e);save()}});
+  a.querySelectorAll("[data-del]").forEach(function(b){b.onclick=function(){ask("Remover exercício?","O exercício e as séries dele serão apagados.","Remover",function(){w.exercises=w.exercises.filter(function(e){return e.id!==b.dataset.del});save();render()})}});
+}
+function on(id,f){var e=document.getElementById(id);if(e)e.onclick=f}
+function val(id){return document.getElementById(id).value.trim()}
+
+function fmt(s){return Math.floor(s/60)+":"+String(s%60).padStart(2,"0")}
+function startT(sec,name){
+  clearInterval(tInt);tLeft=sec;
+  var t=document.getElementById("timer");t.className="show";
+  document.getElementById("tl").textContent="Descanso · "+name;
+  document.getElementById("tm").textContent=fmt(tLeft);
+  tInt=setInterval(function(){
+    tLeft--;document.getElementById("tm").textContent=fmt(Math.max(0,tLeft));
+    if(tLeft<=0){clearInterval(tInt);t.className="show end";document.getElementById("tl").textContent="Hora da próxima série!";beep();setTimeout(function(){if(tLeft<=0)stopT()},8000)}
+  },1000);
+}
+function stopT(){clearInterval(tInt);document.getElementById("timer").className=""}
+function beep(){
+  try{navigator.vibrate&&navigator.vibrate([300,100,300,100,300])}catch(e){}
+  try{var c=new(window.AudioContext||window.webkitAudioContext)(),o=c.createOscillator(),g=c.createGain();o.connect(g);g.connect(c.destination);o.frequency.value=880;g.gain.value=.25;o.start();o.stop(c.currentTime+.5)}catch(e){}
+}
+document.getElementById("tskip").onclick=stopT;
+setInterval(function(){var c=document.getElementById("wc"),w=view&&W(view);if(c&&w&&w.startedAt)c.textContent=fmtD(Date.now()-w.startedAt)},1000);
+document.getElementById("tadd").onclick=function(){if(tLeft>0){tLeft+=15;document.getElementById("tm").textContent=fmt(tLeft)}};
+
+var sb=null,user=null,pt=null;
+function sy(t){var e=document.getElementById("sy");if(e)e.textContent=t}
+function push(){
+  if(!sb||!user)return;
+  sy("Sincronizando...");clearTimeout(pt);
+  pt=setTimeout(function(){
+    sb.from("app_data").upsert({user_id:user.id,data:S,updated_at:new Date().toISOString()}).then(function(r){
+      sy(r.error?"Erro ao salvar na nuvem: "+r.error.message:"Salvo na nuvem \u2713");
+    });
+  },600);
+}
+function authView(msg){
+  var a=document.getElementById("app");
+  a.innerHTML='<h1>Meu Treino</h1><div class="card"><div class="mut" style="margin-bottom:10px">Entre para salvar seus treinos na nuvem.</div><input id="em" type="email" placeholder="E-mail" autocomplete="email" style="margin-bottom:8px"><input id="pw" type="password" placeholder="Senha (m\u00ednimo 6 caracteres)" autocomplete="current-password" style="margin-bottom:12px"><div class="row"><button class="btn" id="li" style="flex:1">Entrar</button><button class="btn sec" id="su" style="flex:1">Criar conta</button></div><p class="mut" id="am" style="margin:12px 0 0">'+esc(msg||"")+'</p></div>';
+  function cred(){return{email:document.getElementById("em").value.trim(),password:document.getElementById("pw").value}}
+  function err(e){return/Invalid login/i.test(e.message)?"E-mail ou senha incorretos.":e.message}
+  document.getElementById("li").onclick=function(){
+    sb.auth.signInWithPassword(cred()).then(function(r){if(r.error)authView(err(r.error));else start(r.data.user)});
+  };
+  document.getElementById("su").onclick=function(){
+    sb.auth.signUp(cred()).then(function(r){
+      if(r.error)authView(err(r.error));
+      else if(r.data.session)start(r.data.user);
+      else authView("Conta criada. Confirme pelo e-mail que enviamos e depois toque em Entrar.");
+    });
+  };
+}
+function start(u){
+  user=u;
+  sb.from("app_data").select("data").eq("user_id",u.id).maybeSingle().then(function(r){
+    if(r.error){document.getElementById("app").innerHTML='<h1>Erro</h1><p class="mut">N\u00e3o foi poss\u00edvel carregar seus dados: '+esc(r.error.message)+'</p>';return}
+    var first=!(r.data&&r.data.data);
+    if(!first){S=r.data.data;if(!S.workouts)S.workouts=[];if(!S.rest)S.rest=60}
+    S.workouts.forEach(function(w){w.exercises.forEach(function(e){fix(e);if(e.done)rec(e)})});
+    view=null;
+    if(first)save();else{try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}sy("Salvo na nuvem \u2713")}
+    render();
+  });
+}
+function boot(){
+  var a=document.getElementById("app");
+  if(!window.supabase||SB_URL.indexOf("COLE")===0){a.innerHTML='<h1>Configura\u00e7\u00e3o</h1><p class="mut">Preencha SB_URL e SB_KEY no in\u00edcio do script do index.html.</p>';return}
+  sb=window.supabase.createClient(SB_URL,SB_KEY);
+  sb.auth.getSession().then(function(r){var ss=r.data&&r.data.session;if(ss)start(ss.user);else authView()});
+}
+boot();
+</script>
+</body>
+</html>
